@@ -1,4 +1,4 @@
-package main.java.com.metro_pos.View.Login;
+package com.metro_pos.View.Login;
 
 import javax.swing.*;
 import java.awt.*;
