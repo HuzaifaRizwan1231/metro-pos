@@ -2,7 +2,6 @@ package com.metro_pos.View.Login;
 
 import javax.swing.*;
 import java.awt.*;
-import com.metro_pos.View.Admin.AddBranchManagerDialog;
 
 public class MainFrame extends JFrame {
     private JPanel mainPanel;
@@ -41,7 +40,6 @@ public class MainFrame extends JFrame {
         setVisible(true);
         setLocationRelativeTo(null);
 
-        new AddBranchManagerDialog(this);
     }
 
 }
