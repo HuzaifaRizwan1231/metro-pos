@@ -1,6 +1,9 @@
 package com.metro_pos.View.Admin;
 
 import javax.swing.*;
+
+import com.metro_pos.View.Login.MainFrame;
+
 import java.awt.*;
 
 public class AdminFrame extends JFrame {
@@ -72,8 +75,8 @@ public class AdminFrame extends JFrame {
 
         logoutButton.addActionListener(e -> {
             // Logic to log out
-            JOptionPane.showMessageDialog(this, "Logout functionality not yet implemented.");
             dispose();
+            new MainFrame();
         });
 
         // Display the frame

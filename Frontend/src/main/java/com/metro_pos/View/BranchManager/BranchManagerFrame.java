@@ -1,6 +1,9 @@
 package com.metro_pos.View.BranchManager;
 
 import javax.swing.*;
+
+import com.metro_pos.View.Login.MainFrame;
+
 import java.awt.*;
 import java.sql.Connection;
 
@@ -47,8 +50,8 @@ public class BranchManagerFrame extends JFrame {
         });
 
         logoutButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Logout functionality not yet implemented.");
             dispose();
+            new MainFrame();
         });
 
         // Display the frame
@@ -57,8 +60,6 @@ public class BranchManagerFrame extends JFrame {
 
     // Main method to launch the application
     public static void main(String[] args) {
-                // Connection connection = DatabaseConnection.getConnection();
-
-        // new BranchManagerFrame(); // Create an instance of BranchManagerFrame
+        new BranchManagerFrame(); // Create an instance of BranchManagerFrame
     }
 }
