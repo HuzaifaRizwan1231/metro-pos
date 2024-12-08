@@ -96,10 +96,17 @@ public class ManageBranchFrame extends JFrame {
     }
 
     private void handleAddBranch() {
-        new AddBranchFrame(); // Open the AddBranchFrame
-
+        // Open the AddBranchFrame and add a window listener to refresh the table after closing
+        AddBranchFrame addBranchFrame = new AddBranchFrame();
+    
+        addBranchFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                refreshTable(); // Refresh the table when the AddBranchFrame is closed
+            }
+        });
     }
-
+    
     private void handleUpdateBranch() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow != -1) {
@@ -110,16 +117,23 @@ public class ManageBranchFrame extends JFrame {
             String address = table.getValueAt(selectedRow, 3).toString();
             String phone = table.getValueAt(selectedRow, 4).toString();
             String isActive = table.getValueAt(selectedRow, 5).toString();
-
+    
             // Open the UpdateBranchFrame with the selected data
-            new UpdateBranchFrame(branchCode, name, city, address, phone, isActive);
-            refreshTable();
-
+            UpdateBranchFrame updateBranchFrame = new UpdateBranchFrame(branchCode, name, city, address, phone, isActive);
+    
+            // Add a window listener to refresh the table after the frame is closed
+            updateBranchFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent e) {
+                    refreshTable(); // Refresh the table when the UpdateBranchFrame is closed
+                }
+            });
+    
         } else {
             JOptionPane.showMessageDialog(this, "No branch selected.", "Error", JOptionPane.WARNING_MESSAGE);
         }
     }
-
+    
     private void handleDeleteBranch() {
         int selectedRow = table.getSelectedRow();
 

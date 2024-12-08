@@ -78,9 +78,43 @@ public class ManageBranchManagerFrame extends JFrame {
             new AdminFrame();
             dispose(); // Close the current frame
         });
-
-        addManagerButton.addActionListener(e -> new AddManagerFrame());
-
+        addManagerButton.addActionListener(e -> {
+            AddManagerFrame addManagerFrame = new AddManagerFrame();
+        
+            // Add a WindowListener to reload the table data after the AddManagerFrame is closed
+            addManagerFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent e) {
+                    loadManagerData(); // Refresh the table data
+                }
+            });
+        });
+        
+        updateManagerButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                // Retrieve selected manager details
+                int managerCode = (int) table.getValueAt(selectedRow, 0);
+                String name = (String) table.getValueAt(selectedRow, 1);
+                String email = (String) table.getValueAt(selectedRow, 2);
+                int branchCode = (int) table.getValueAt(selectedRow, 3);
+                double salary = (double) table.getValueAt(selectedRow, 4);
+        
+                // Open the UpdateBranchManagerFrame with the selected manager's details
+                UpdateBranchManagerFrame updateBranchManagerFrame = new UpdateBranchManagerFrame(managerCode, name, email, salary);
+        
+                // Add a WindowListener to reload the table data after the UpdateBranchManagerFrame is closed
+                updateBranchManagerFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosed(java.awt.event.WindowEvent e) {
+                        loadManagerData(); // Refresh the table data
+                    }
+                });
+            } else {
+                JOptionPane.showMessageDialog(this, "No manager selected");
+            }
+        });
+        
         deleteManagerButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
@@ -92,22 +126,6 @@ public class ManageBranchManagerFrame extends JFrame {
             }
         });
 
-        updateManagerButton.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow != -1) {
-                // Retrieve selected manager details
-                int managerCode = (int) table.getValueAt(selectedRow, 0);
-                String name = (String) table.getValueAt(selectedRow, 1);
-                String email = (String) table.getValueAt(selectedRow, 2);
-                int branchCode = (int) table.getValueAt(selectedRow, 3);
-                double salary = (double) table.getValueAt(selectedRow, 4);
-
-                // Open the UpdateBranchManagerFrame with the selected manager's details
-                new UpdateBranchManagerFrame(managerCode, name, email, branchCode, salary);
-            } else {
-                JOptionPane.showMessageDialog(this, "No manager selected");
-            }
-        });
 
         table.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
