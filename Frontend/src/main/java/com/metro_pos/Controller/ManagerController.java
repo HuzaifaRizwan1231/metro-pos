@@ -6,31 +6,51 @@ import com.metro_pos.Database.DatabaseConnection;
 
 public class ManagerController {
 
-    public boolean addManager(String name, String email, Integer branchCode, Double salary,String role) {
-        // Adjusted SQL query (removed employee_num field)
-        String sql = "INSERT INTO user (name, email, password, branch_code, salary, role, is_first_login) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, TRUE)";
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            // Set parameters (removed employee_num)
-            ps.setString(1, name);
-            ps.setString(2, email);
-            ps.setString(3, hashPassword("123")); // Assume "123" is a default password to be hashed
-            ps.setInt(4, branchCode);
-            ps.setDouble(5, salary);
-            ps.setString(6, role);
-            // Execute the statement
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
-
+    public boolean addManager(String name, String email, Integer branchCode, Double salary, String role) {
+        // SQL query to insert a new manager
+        String insertManagerSql = "INSERT INTO user (name, email, password, branch_code, salary, role, is_first_login) "
+                                + "VALUES (?, ?, ?, ?, ?, ?, TRUE)";
+        // SQL query to update manager_assigned in the branch table
+        String updateBranchSql = "UPDATE branch SET manager_assigned = TRUE WHERE branch_code = ?";
+    
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            // Enable transaction management
+            connection.setAutoCommit(false);
+    
+            try (PreparedStatement insertManagerPs = connection.prepareStatement(insertManagerSql);
+                 PreparedStatement updateBranchPs = connection.prepareStatement(updateBranchSql)) {
+    
+                // Insert the manager
+                insertManagerPs.setString(1, name);
+                insertManagerPs.setString(2, email);
+                insertManagerPs.setString(3, hashPassword("123")); // Default hashed password
+                insertManagerPs.setInt(4, branchCode);
+                insertManagerPs.setDouble(5, salary);
+                insertManagerPs.setString(6, role);
+                int managerRowsAffected = insertManagerPs.executeUpdate();
+    
+                // Update the branch table
+                updateBranchPs.setInt(1, branchCode);
+                int branchRowsAffected = updateBranchPs.executeUpdate();
+    
+                // Commit transaction if both operations are successful
+                if (managerRowsAffected > 0 && branchRowsAffected > 0) {
+                    connection.commit();
+                    return true;
+                } else {
+                    connection.rollback(); // Rollback in case of failure
+                    return false;
+                }
+            } catch (Exception ex) {
+                connection.rollback(); // Rollback in case of exception
+                throw ex;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
-
+    
     private String hashPassword(String password) {
         // Implement password hashing here, e.g., using BCrypt
         return password; // Replace with actual hashing logic

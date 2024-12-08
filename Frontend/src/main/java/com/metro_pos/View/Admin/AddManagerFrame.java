@@ -87,42 +87,47 @@ public class AddManagerFrame extends JFrame {
         gbc.gridwidth = 2;
         add(backButton, gbc);
 
-        // Add action listener for the submit button
-        submitButton.addActionListener(e -> {
-            // Retrieve input from fields
-            String name = nameField.getText().trim();
-            String email = emailField.getText().trim();
-            Integer branchCode = (Integer) branchCodeComboBox.getSelectedItem(); // Get branch code from the combo box
-            String salary = salaryField.getText().trim();
+// Add action listener for the submit button
+submitButton.addActionListener(e -> {
+    // Retrieve input from fields
+    String name = nameField.getText().trim();
+    String email = emailField.getText().trim();
+    Integer branchCode = (Integer) branchCodeComboBox.getSelectedItem(); // Get branch code from the combo box
+    String salary = salaryField.getText().trim();
 
-            // Input validation
-            if (name.isEmpty() || email.isEmpty() || branchCode == null || salary.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "All fields are required.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+    // Input validation
+    if (name.isEmpty() || email.isEmpty() || branchCode == null || salary.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "All fields are required.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-            // Validate salary is numeric
-            try {
-                double salaryDouble = Double.parseDouble(salary);
+    // Validate email format
+    String emailPattern = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    if (!email.matches(emailPattern)) {
+        JOptionPane.showMessageDialog(this, "Please enter a valid email address.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-                // Call the controller to handle adding the manager
-                ManagerController managerController = new ManagerController();
-                boolean isAdded = managerController.addManager(name, email, branchCode, salaryDouble,"Manager");  // Corrected method call
+    // Validate salary is numeric
+    try {
+        double salaryDouble = Double.parseDouble(salary);
 
-                // Provide feedback based on the operation result
-                if (isAdded) {
-                    JOptionPane.showMessageDialog(this, "Manager added successfully!");
-                    dispose(); // Close the frame
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to add manager. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+        // Call the controller to handle adding the manager
+        ManagerController managerController = new ManagerController();
+        boolean isAdded = managerController.addManager(name, email, branchCode, salaryDouble, "Manager");  // Corrected method call
 
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Salary must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            }
-        
-        
-        });
+        // Provide feedback based on the operation result
+        if (isAdded) {
+            JOptionPane.showMessageDialog(this, "Manager added successfully!");
+            dispose(); // Close the frame
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to add manager. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this, "Salary must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
 
         // Add action listener for the back button
         backButton.addActionListener(e -> {
