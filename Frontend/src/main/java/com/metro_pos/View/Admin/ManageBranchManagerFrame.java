@@ -114,18 +114,18 @@ public class ManageBranchManagerFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "No manager selected");
             }
         });
-        
         deleteManagerButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                // Retrieve the selected manager's Employee Code (Primary Key)
+                // Retrieve the selected manager's Employee Code and Branch Code
                 int employeeCode = (int) table.getValueAt(selectedRow, 0);
-                deleteManager(employeeCode);
+                int branchCode = (int) table.getValueAt(selectedRow, 3); // Assuming branch_code is in the 4th column
+                deleteManager(employeeCode, branchCode);
             } else {
                 JOptionPane.showMessageDialog(this, "No manager selected");
             }
         });
-
+        
 
         table.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
@@ -168,28 +168,40 @@ public class ManageBranchManagerFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Error loading manager data.", "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+// Method to delete a manager from the database
+private void deleteManager(int employeeCode, int branchCode) {
+    String deleteManagerSql = "DELETE FROM user WHERE employee_num = ? AND role = 'Manager'";
+    String updateBranchSql = "UPDATE branch SET manager_assigned = 0 WHERE branch_code = ?";
 
-    // Method to delete a manager from the database
-    private void deleteManager(int employeeCode) {
-        String sql = "DELETE FROM user WHERE employee_num = ? AND role = 'Manager'";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement deletePs = conn.prepareStatement(deleteManagerSql);
+         PreparedStatement updatePs = conn.prepareStatement(updateBranchSql)) {
 
-            ps.setInt(1, employeeCode);
-            int rowsAffected = ps.executeUpdate();
+        conn.setAutoCommit(false); // Begin transaction
 
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "Manager deleted successfully.");
-                loadManagerData();  // Reload the manager data after deletion
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to delete manager. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+        // Prepare and execute delete manager query
+        deletePs.setInt(1, employeeCode);
+        int rowsAffected = deletePs.executeUpdate();
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error deleting manager.", "Database Error", JOptionPane.ERROR_MESSAGE);
+        if (rowsAffected > 0) {
+            // Update the branch's manager_assigned status
+            updatePs.setInt(1, branchCode);
+            updatePs.executeUpdate();
+
+            conn.commit(); // Commit transaction
+            JOptionPane.showMessageDialog(this, "Manager deleted successfully.");
+            loadManagerData(); // Reload the manager data after deletion
+        } else {
+            conn.rollback(); // Rollback transaction in case of failure
+            JOptionPane.showMessageDialog(this, "Failed to delete manager. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
         }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error deleting manager.", "Database Error", JOptionPane.ERROR_MESSAGE);
     }
+}
+
 
     public static void main(String[] args) {
         new ManageBranchManagerFrame(); // Create an instance of ManageBranchManagerFrame

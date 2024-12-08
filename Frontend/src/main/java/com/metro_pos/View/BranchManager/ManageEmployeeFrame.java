@@ -37,7 +37,6 @@ public class ManageEmployeeFrame extends JFrame {
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         JTable table = new JTable(model);
 
-        // Set table font size and row height
         table.setFont(new Font("Arial", Font.PLAIN, 18));
         table.setRowHeight(30);
 
@@ -87,10 +86,18 @@ public class ManageEmployeeFrame extends JFrame {
         } );
 
         addEmployeeButton.addActionListener(e -> {
-            new AddEmployeeFrame();
-            // dispose();
+            AddEmployeeFrame addEmployeeFrame = new AddEmployeeFrame();
+        
+            // Add a WindowListener to reload the table data after the AddEmployeeFrame is closed
+            addEmployeeFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent e) {
+                    // Refresh the table after adding an employee
+                    refreshTableData(model, 1, "Cashier", "DEO");
+                }
+            });
         });
-
+        
         deleteEmployeeButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             int employeeCode = (int) table.getValueAt(selectedRow, 0);
@@ -112,14 +119,24 @@ public class ManageEmployeeFrame extends JFrame {
                 int branchCode = (int) table.getValueAt(selectedRow, 3);
                 double salary = (double) table.getValueAt(selectedRow, 4);
                 String role = (String) table.getValueAt(selectedRow, 5);
-
+        
                 // Open the UpdateEmployeeFrame with the selected employee's details
-                new UpdateEmployeeFrame(employeeCode, name, email, salary, role);
+                UpdateEmployeeFrame updateEmployeeFrame = new UpdateEmployeeFrame(employeeCode, name, email, salary, role);
+        
+                // Add a WindowListener to reload the table data after the UpdateEmployeeFrame is closed
+                updateEmployeeFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosed(java.awt.event.WindowEvent e) {
+                        // Refresh the table after updating an employee
+                        refreshTableData(model, 1, "Cashier", "DEO");
+                    }
+                });
+        
             } else {
                 JOptionPane.showMessageDialog(this, "No employee selected");
             }
         });
-
+        
         table.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
                 boolean isSelected = table.getSelectedRow() != -1;
@@ -131,7 +148,19 @@ public class ManageEmployeeFrame extends JFrame {
         // Display the frame
         setVisible(true);
     }
-
+    private void refreshTableData(DefaultTableModel model, int branchId, String... roles) {
+        // Fetch updated data
+        Object[][] updatedData = fetchEmployeeData(branchId, roles);
+    
+        // Clear existing rows in the table model
+        model.setRowCount(0);
+    
+        // Add updated rows to the table model
+        for (Object[] row : updatedData) {
+            model.addRow(row);
+        }
+    }
+    
     private boolean deleteEmployeeFromDatabase(int employeeCode) {
         String sql = "DELETE FROM user WHERE employee_num = ?"; // SQL DELETE query
     
