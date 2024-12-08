@@ -6,7 +6,22 @@ public class Vendor {
     private String phone;
     private String address;
 
-    // Getters and Setters
+    public Vendor(int id, String name, String phone, String address) {
+        this.id = id;
+        this.name = name;
+        this.phone = phone;
+        this.address = address;
+    }
+
+    public Vendor(String name, String phone, String address) {
+        this.name = name;
+        this.phone = phone;
+        this.address = address;
+    }
+
+    public Vendor() {
+    }
+
     public int getId() {
         return id;
     }
