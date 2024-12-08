@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -55,7 +54,13 @@ class ChooseVendorDialogue extends JDialog {
         String[] columnNames = {"ID", "Name", "Phone", "Address"};
         Object[][] data = deoController.getVendors();
 
-        DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
+        DefaultTableModel tableModel = new DefaultTableModel(data, columnNames){
+            //Makes all the cells non editable
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         JTable vendorTable = new JTable(tableModel);
         JScrollPane tableScrollPane = new JScrollPane(vendorTable);
         add(tableScrollPane, gbc);
@@ -69,8 +74,14 @@ class ChooseVendorDialogue extends JDialog {
         chooseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AddNewProduct(parent);
-                dispose();
+                int selectedRow = vendorTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    Object id = vendorTable.getValueAt(selectedRow, 0);
+                    System.out.println("Selected Vendor ID: " + id);
+
+                    new AddNewProduct(parent, id.toString());
+                    dispose();
+                }
             }
         });
         add(chooseButton, gbc);
@@ -94,7 +105,6 @@ class ChooseVendorDialogue extends JDialog {
             }
         });
 
-        // Implement search functionality
         TableRowSorter<DefaultTableModel> rowSorter = new TableRowSorter<>(tableModel);
         vendorTable.setRowSorter(rowSorter);
 

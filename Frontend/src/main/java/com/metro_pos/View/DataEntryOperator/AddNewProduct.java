@@ -1,6 +1,10 @@
 package com.metro_pos.View.DataEntryOperator;
 
 import javax.swing.*;
+
+import com.metro_pos.Controller.DEOController;
+import com.metro_pos.Store.UserStore;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,8 +12,12 @@ import java.awt.event.ActionListener;
 
 public class AddNewProduct extends JDialog {
 
-    public AddNewProduct(Dialog parent) {
+    private String vendorId;
+
+    public AddNewProduct(Dialog parent, String vendorId) {
         super(parent, "Add New Product", true);
+        this.vendorId = vendorId;
+
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -50,10 +58,10 @@ public class AddNewProduct extends JDialog {
         JTextField priceByCartonField = new JTextField(20);
         priceByCartonField.setFont(font);
 
-        JLabel vendorIdLabel = new JLabel("Vendor ID:");
-        vendorIdLabel.setFont(font);
-        JTextField vendorIdField = new JTextField(20);
-        vendorIdField.setFont(font);
+        JLabel quantityLabel = new JLabel("Quantity:");
+        quantityLabel.setFont(font);
+        JTextField quantityField = new JTextField(20);
+        quantityField.setFont(font);
 
         JButton addButton = new JButton("Add Product");
         JButton cancelButton = new JButton("Cancel");
@@ -99,9 +107,9 @@ public class AddNewProduct extends JDialog {
         add(priceByCartonField, gbc);
 
         gbc.gridx = 0; gbc.gridy = 7;
-        add(vendorIdLabel, gbc);
+        add(quantityLabel, gbc);
         gbc.gridx = 1; gbc.gridy = 7;
-        add(vendorIdField, gbc);
+        add(quantityField, gbc);
 
         gbc.gridx = 0; gbc.gridy = 8;
         gbc.gridwidth = 2;
@@ -111,7 +119,6 @@ public class AddNewProduct extends JDialog {
         buttonPanel.add(cancelButton);
         add(buttonPanel, gbc);
 
-        // Add button functionality
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -121,19 +128,44 @@ public class AddNewProduct extends JDialog {
                 String salePrice = salePriceField.getText();
                 String priceByUnit = priceByUnitField.getText();
                 String priceByCarton = priceByCartonField.getText();
-                String vendorId = vendorIdField.getText();
+                String quantity = quantityField.getText();
 
                 // Validate inputs and perform action (e.g., add to database)
                 if (name.isEmpty() || category.isEmpty() || originalPrice.isEmpty() ||
                         salePrice.isEmpty() || priceByUnit.isEmpty() ||
-                        priceByCarton.isEmpty() || vendorId.isEmpty()) {
+                        priceByCarton.isEmpty() || quantity.isEmpty()) {
                     JOptionPane.showMessageDialog(AddNewProduct.this,
                             "Please fill all fields.", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    // Here, you would add the logic to save the product (e.g., insert into DB)
+                            return;
+                }
+
+                Double originalPriceDouble = Double.parseDouble(originalPrice);
+                Double salePriceDouble = Double.parseDouble(salePrice);
+                Double priceByUnitDouble = Double.parseDouble(priceByUnit);
+                Double priceByCartonDouble = Double.parseDouble(priceByCarton);
+                int quantityInt = Integer.parseInt(quantity);
+
+                if(originalPriceDouble < 0 || salePriceDouble < 0 || priceByUnitDouble < 0 || priceByCartonDouble < 0) {
                     JOptionPane.showMessageDialog(AddNewProduct.this,
-                            "Product added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    dispose();
+                            "Prices cannot be negative.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                else if(quantityInt < 0) {
+                    JOptionPane.showMessageDialog(AddNewProduct.this,
+                            "Quantity cannot be negative.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                else {
+                    DEOController deo = new DEOController();
+                    boolean result = deo.addProduct(name, category, originalPriceDouble, salePriceDouble, priceByUnitDouble, priceByCartonDouble, quantityInt, Integer.parseInt(vendorId), UserStore.getCurrentUser().getBranchCode());
+                    if(result) {
+                        JOptionPane.showMessageDialog(AddNewProduct.this,
+                                "Product added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        dispose();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(AddNewProduct.this,
+                                "Failed to add product.", "Error", JOptionPane.ERROR_MESSAGE);
+                        dispose();
+                    }
                 }
             }
         });

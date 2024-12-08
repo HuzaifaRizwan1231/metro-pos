@@ -55,6 +55,10 @@ class AddVendorDialogue extends JDialog {
                     JOptionPane.showMessageDialog(AddVendorDialogue.this, "Please fill all fields", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+                else if(phone.length() != 10) {
+                    JOptionPane.showMessageDialog(AddVendorDialogue.this, "Phone number must be 10 digits long", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 else if(hasNonDigits) {
                     JOptionPane.showMessageDialog(AddVendorDialogue.this, "Phone number must contain only digits", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -62,10 +66,10 @@ class AddVendorDialogue extends JDialog {
                 else{
                     // Save the vendor to the database
                     DEOController deoController = new DEOController();
-                    boolean saved = deoController.addVendor(name, phone, address);
-                    if(saved){
-                        JOptionPane.showMessageDialog(AddVendorDialogue.this, "Vendor saved successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        new AddNewProduct(parent);
+                    int savedId = deoController.addVendor(name, phone, address);
+                    if(savedId != -1){
+                        JOptionPane.showMessageDialog(AddVendorDialogue.this, "Vendor saved successfully with ID" + savedId, "Success", JOptionPane.INFORMATION_MESSAGE);
+                        new AddNewProduct(parent, Integer.toString(savedId));
                     }
                     else{
                         JOptionPane.showMessageDialog(AddVendorDialogue.this, "Failed to save vendor", "Error", JOptionPane.ERROR_MESSAGE);

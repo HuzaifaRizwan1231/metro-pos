@@ -16,12 +16,25 @@ public class DEOController {
         deoService = new DEOService();
     }
 
-    public boolean addVendor(String name, String phone, String address) {
+    public int addVendor(String name, String phone, String address) {
         return deoService.addVendor(name, phone, address);
     }
 
     public Object[][] getVendors() {
        return deoService.getVendors();
+    }
+
+    public boolean addProduct(String name, String category, double originalPrice, double salePrice, double priceByUnit, double priceByCarton, int quantity, int vendorId, int branch_id) {
+        int id = deoService.checkProductExistsInBranch(name, branch_id);
+        if(id != 0) {
+            return deoService.updateProductQuantity(id, quantity, vendorId);
+        }
+        else if(id == -1) {
+            return false;
+        }
+        else{
+            return deoService.addNewProduct(name, category, originalPrice, salePrice, priceByUnit, priceByCarton, quantity, vendorId, branch_id);
+        }
     }
     
 }
