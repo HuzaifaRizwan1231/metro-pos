@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -69,8 +68,14 @@ class ChooseVendorDialogue extends JDialog {
         chooseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AddNewProduct(parent);
-                dispose();
+                int selectedRow = vendorTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    Object id = vendorTable.getValueAt(selectedRow, 0);
+                    System.out.println("Selected Vendor ID: " + id);
+
+                    new AddNewProduct(parent, id.toString());
+                    dispose();
+                }
             }
         });
         add(chooseButton, gbc);
