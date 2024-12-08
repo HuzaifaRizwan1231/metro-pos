@@ -46,7 +46,7 @@ public class ProductService extends BaseService {
     public Boolean updateQuantity(int product_id, int quantity_sold) {
 
         try {
-            String query = "UPDATE product p SET quantity = p.quantity - ? WHERE id = ?";
+            String query = "UPDATE product SET quantity = quantity - ? WHERE id = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, quantity_sold);
             stmt.setInt(2, product_id);

@@ -229,6 +229,11 @@ public class GenerateSaleDialogue extends JDialog {
         boolean present = false;
         for (Product p : productInSale) {
             if (p.getId() == selectedProduct.getId()) {
+
+                if (selectedProduct.getQuantity() < p.getQuantity() + 1) {
+                    JOptionPane.showMessageDialog(this, "Out of stock");
+                    return;
+                }
                 p.setQuantity(p.getQuantity() + 1);
                 present = true;
                 break;
@@ -236,6 +241,10 @@ public class GenerateSaleDialogue extends JDialog {
         }
 
         if (!present) {
+            if (selectedProduct.getQuantity() < 1) {
+                JOptionPane.showMessageDialog(this, "Out of stock");
+                return;
+            }
             selectedProduct.setQuantity(1);
             productInSale.add(selectedProduct);
         }
