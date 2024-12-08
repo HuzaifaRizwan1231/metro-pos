@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame { // Retained the original name
     private String deoName;
 
     public MainFrame() {
@@ -48,14 +48,17 @@ public class MainFrame extends JFrame {
             }
         });
 
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.setFont(new Font("Arial", Font.BOLD, 24));
-        cancelButton.setMargin(new Insets(20, 20, 20, 20));
-        cancelButton.setFocusPainted(false);
-        cancelButton.addActionListener(new ActionListener() {
+        JButton logoutButton = new JButton("Logout"); // Renamed Cancel to Logout
+        logoutButton.setFont(new Font("Arial", Font.BOLD, 24));
+        logoutButton.setMargin(new Insets(20, 20, 20, 20));
+        logoutButton.setFocusPainted(false);
+        logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                dispose();
+                dispose(); // Close the current Data Entry Operator MainFrame
+
+                // Use the Login MainFrame by specifying its fully qualified name
+                new com.metro_pos.View.Login.MainFrame();
             }
         });
 
@@ -67,9 +70,8 @@ public class MainFrame extends JFrame {
         gbc.gridx = 0;
         buttonPanel.add(addButton, gbc);
         gbc.gridy = 1;
-        buttonPanel.add(cancelButton, gbc);
+        buttonPanel.add(logoutButton, gbc);
         add(buttonPanel, BorderLayout.CENTER);
-
     }
 
     public static void main(String[] args) {
