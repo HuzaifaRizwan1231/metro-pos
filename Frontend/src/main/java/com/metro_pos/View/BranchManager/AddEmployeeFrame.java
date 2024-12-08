@@ -145,15 +145,13 @@ public class AddEmployeeFrame extends JFrame {
             }
         
             int branchid = 1;  // Static for now, modify as per your actual logic
-             ManagerController managerController = new ManagerController();
-             User u=UserStore.getCurrentUser();
-             branchid=u.getBranchCode();
+            ManagerController managerController = new ManagerController();
+            User u=UserStore.getCurrentUser();
+            branchid=u.getBranchCode();
             managerController.addManager(name, email, branchid, salary,role);  // Corrected method call
         
             // If all validations pass, proceed with adding the employee (e.g., storing to a database or a list)
             JOptionPane.showMessageDialog(this, "Employee added successfully!");
-            
-            // Optionally, close the frame after submission
             dispose();
         });
         

@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import com.metro_pos.Database.DatabaseConnection;
+import com.metro_pos.Store.UserStore;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -32,7 +33,7 @@ public class ManageEmployeeFrame extends JFrame {
 
         // Create the table with updated columns
         String[] columnNames = { "Employee Code", "Name", "Email", "Branch Code", "Salary", "Role" };
-        Object[][] data = fetchEmployeeData(1, "Cashier", "DEO");
+        Object[][] data = fetchEmployeeData(UserStore.getCurrentUser().getBranchCode(), "Cashier", "DEO");
 
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         JTable table = new JTable(model);
@@ -131,7 +132,7 @@ public class ManageEmployeeFrame extends JFrame {
                     @Override
                     public void windowClosed(java.awt.event.WindowEvent e) {
                         // Refresh the table after updating an employee
-                        refreshTableData(model, 1, "Cashier", "DEO");
+                        refreshTableData(model, UserStore.getCurrentUser().getBranchCode(), "Cashier", "DEO");
                     }
                 });
 

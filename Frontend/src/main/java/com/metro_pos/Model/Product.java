@@ -10,9 +10,10 @@ public class Product {
     private double priceByCarton;
     private int quantity;
     private int vendorId;
+    private int branchId;
 
     public Product(int id, String name, String category, double originalPrice, double salePrice, double priceByUnit,
-            double priceByCarton, int quantity, int vendorId) {
+            double priceByCarton, int quantity, int vendorId, int branchId) {
         this.id = id;
         this.name = name;
         this.category = category;
@@ -22,6 +23,7 @@ public class Product {
         this.priceByCarton = priceByCarton;
         this.quantity = quantity;
         this.vendorId = vendorId;
+        this.branchId = branchId;
     }
 
     // Getters and Setters
@@ -95,5 +97,12 @@ public class Product {
 
     public void setVendorId(int vendorId) {
         this.vendorId = vendorId;
+    }
+    public int getBranchId() {
+        return branchId;
+    }
+
+    public void setBranchId(int branchId) {
+        this.branchId = branchId;
     }
 }
