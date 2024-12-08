@@ -6,6 +6,7 @@ import java.util.List;
 import com.metro_pos.Model.Product;
 import com.metro_pos.Model.Sales;
 import com.metro_pos.Model.SalesProducts;
+import com.metro_pos.Service.ProductService;
 import com.metro_pos.Service.SalesProductsService;
 import com.metro_pos.Service.SalesService;
 import com.metro_pos.Store.UserStore;
@@ -14,10 +15,12 @@ public class SalesController {
 
     private SalesService saleService;
     private SalesProductsService salesProductsService;
+    private ProductService productService;
 
     public SalesController() {
         this.saleService = new SalesService();
         this.salesProductsService = new SalesProductsService();
+        this.productService = new ProductService();
     }
 
     public Boolean generateSale(List<Product> products) {
@@ -36,6 +39,9 @@ public class SalesController {
             SalesProducts salesProducts = new SalesProducts(sales.getId(), p.getId(), p.getQuantity(),
                     p.getPriceByUnit() * p.getQuantity());
             salesProductsService.insert(salesProducts);
+
+            // update the quantity of the product
+            productService.updateQuantity(p.getId(), p.getQuantity());
         }
 
         return true;
