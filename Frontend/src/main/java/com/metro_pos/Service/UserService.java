@@ -12,22 +12,15 @@ import com.metro_pos.Database.DatabaseConnection;
 import com.metro_pos.Model.User;
 import com.metro_pos.Store.UserStore;
 
-public class UserService {
+public class UserService extends BaseService {
 
-    Connection conn;
+    public User getByUserNameAndPasswordAndRole(String email, String password, String role) {
 
-    public UserService() {
-        this.conn = DatabaseConnection.getConnection();
-    }
-
-    public User getByUserNameAndPasswordAndRole(String userName, String password, String role) {
-
-        String sql = "SELECT * FROM user WHERE name = ? AND password = ? AND role = ?";
+        String sql = "SELECT * FROM user WHERE email = ? AND password = ? AND role = ?";
         User user;
-
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, userName);
+            ps.setString(1, email);
             ps.setString(2, password);
             ps.setString(3, role);
 
@@ -57,7 +50,7 @@ public class UserService {
             ps.setString(2, UserStore.getCurrentUser().getName());
             ps.setString(3, UserStore.getCurrentUser().getRole());
 
-            ps.execute();
+            ps.executeUpdate();
 
             return true;
 

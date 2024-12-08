@@ -1,59 +1,272 @@
 package com.metro_pos.View.Cashier;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+import com.metro_pos.Controller.ProductController;
+import com.metro_pos.Model.Product;
+
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GenerateSaleDialogue extends JDialog {
+
+    private JTextField productField;
+    private JPopupMenu suggestionPopup;
+    private JTable suggestionTable;
+    private JTable productTable;
+    private DefaultTableModel suggestionTableModel;
+    private DefaultTableModel saleTableModel;
+    private ProductController productController;
+    private List<Product> productInSale;
+    private List<Product> suggestions;
 
     public GenerateSaleDialogue(JFrame parent) {
         super(parent, "Generate Sale", true);
         setLayout(new BorderLayout());
 
-        String[] columnNames = {"Name", "Quantity", "Unit Price", "Total Price"};
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
-        JTable productTable = new JTable(tableModel);
+        this.productController = new ProductController();
+        this.productInSale = new ArrayList<>();
+
+        String[] columnNames = { "ID", "Name", "Quantity", "Unit Price", "Total Price" };
+        saleTableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 2; // Only allow editing the "Quantity" column
+            }
+        };
+
+        productTable = new JTable();
+        productTable.setModel(saleTableModel);
+        productTable.setRowHeight(25);
+        productTable.getTableHeader().setReorderingAllowed(false);
+        productTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        productTable.putClientProperty("terminateEditOnFocusLost", true);
+
+        centerTableText(productTable);
 
         JScrollPane scrollPane = new JScrollPane(productTable);
-        add(scrollPane, BorderLayout.CENTER);
 
-        Font font = new Font(null, Font.PLAIN, 16);
+        JPanel addItemPanel = createAddItemPanel();
+        JPanel buttonPanel = createButtonPanel();
 
-        JButton generateSaleButton = new JButton("Generate Sale");
-        generateSaleButton.setFont(font);
-        JButton addItemButton = new JButton("Add Item");
-        addItemButton.setFont(font);
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.setFont(font);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        generateSaleButton.addActionListener(e -> {
-            // Logic to generate the sale
-            JOptionPane.showMessageDialog(this, "Sale generated successfully!");
-        });
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(addItemPanel, BorderLayout.EAST);
+        mainPanel.add(topPanel, BorderLayout.NORTH);
 
-        addItemButton.addActionListener(e -> {
-            new AddProductToSale(GenerateSaleDialogue.this);
-        });
-
-        cancelButton.addActionListener(e -> {
-            GenerateSaleDialogue.this.dispose();
-        });
-
-        // Create a panel for the buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        buttonPanel.add(generateSaleButton);
-        buttonPanel.add(addItemButton);
-        buttonPanel.add(cancelButton);
-
+        add(mainPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Set dialog properties
-        setSize(600, 400);
+        setSize(800, 600);
         setLocationRelativeTo(parent);
         setResizable(false);
         setVisible(true);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        saleTableModel.addTableModelListener(e -> {
+            int row = e.getFirstRow();
+            int column = e.getColumn();
+            System.out.println("EDITING");
+            if (column == 2) {
+                try {
+                    int newQuantity = Integer.parseInt(saleTableModel.getValueAt(row, column).toString());
+                    if (newQuantity <= 0) {
+                        JOptionPane.showMessageDialog(this, "Quantity must be greater than zero.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        updateSaleTable();
+                        return;
+                    }
+                    int productId = (int) saleTableModel.getValueAt(row, 0);
+                    productInSale.stream()
+                            .filter(p -> p.getId() == productId)
+                            .findFirst()
+                            .ifPresent(p -> p.setQuantity(newQuantity));
+                    updateSaleTable();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Please enter a valid quantity.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    updateSaleTable();
+                }
+            }
+
+            productTable.revalidate();
+            productTable.repaint();
+
+        });
+    }
+
+    private JPanel createAddItemPanel() {
+        JPanel addItemPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel productLabel = new JLabel("Product:");
+        productField = new JTextField(15);
+
+        suggestionPopup = new JPopupMenu();
+        suggestionTable = new JTable();
+        suggestionTableModel = new DefaultTableModel(new String[] { "ID", "Name" }, 0);
+        suggestionTable.setModel(suggestionTableModel);
+        suggestionTable.setRowHeight(25);
+        suggestionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JScrollPane suggestionScrollPane = new JScrollPane(suggestionTable);
+        suggestionScrollPane.setPreferredSize(new Dimension(300, 150));
+        suggestionPopup.add(suggestionScrollPane);
+
+        productField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateSuggestions();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateSuggestions();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateSuggestions();
+            }
+        });
+
+        suggestionTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && suggestionTable.getSelectedRow() != -1) {
+                int selectedRow = suggestionTable.getSelectedRow();
+                int id = Integer.parseInt(suggestionTableModel.getValueAt(selectedRow, 0).toString());
+                addItem(id);
+                suggestionPopup.setVisible(false);
+            }
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        addItemPanel.add(productLabel, gbc);
+        gbc.gridx = 1;
+        addItemPanel.add(productField, gbc);
+
+        return addItemPanel;
+    }
+
+    private JPanel createButtonPanel() {
+        JButton generateSaleButton = new JButton("Generate Sale");
+        generateSaleButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Sale generated successfully!"));
+
+        JButton deleteButton = new JButton("Delete Item");
+        deleteButton.addActionListener(e -> deleteSelectedItem());
+
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> this.dispose());
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonPanel.add(generateSaleButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(cancelButton);
+
+        return buttonPanel;
+    }
+
+    private void updateSuggestions() {
+        String input = productField.getText().trim();
+        suggestionTableModel.setRowCount(0);
+
+        if (input.isEmpty()) {
+            suggestionPopup.setVisible(false);
+            return;
+        }
+
+        suggestions = productController.fetchSuggestions(input);
+
+        if (!suggestions.isEmpty()) {
+            for (Product suggestion : suggestions) {
+                suggestionTableModel.addRow(new Object[] { suggestion.getId(), suggestion.getName() });
+            }
+        } else {
+            suggestionTableModel.addRow(new Object[] { "-", "-" });
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            suggestionPopup.setFocusable(false);
+            suggestionPopup.show(productField, 0, productField.getHeight());
+            productField.requestFocusInWindow();
+        });
+    }
+
+    private void addItem(int id) {
+        Product selectedProduct = suggestions.stream()
+                .filter(p -> p.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (selectedProduct == null) {
+            JOptionPane.showMessageDialog(this, "Selected product not found.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        boolean present = false;
+        for (Product p : productInSale) {
+            if (p.getId() == selectedProduct.getId()) {
+                p.setQuantity(p.getQuantity() + 1);
+                present = true;
+                break;
+            }
+        }
+
+        if (!present) {
+            selectedProduct.setQuantity(1);
+            productInSale.add(selectedProduct);
+        }
+
+        updateSaleTable();
+        productField.setText("");
+    }
+
+    private void deleteSelectedItem() {
+        int selectedRow = productTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an item to delete.", "Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int productId = (int) saleTableModel.getValueAt(selectedRow, 0);
+        productInSale.removeIf(p -> p.getId() == productId);
+        updateSaleTable();
+    }
+
+    private void updateSaleTable() {
+        saleTableModel.setRowCount(0);
+
+        for (Product p : productInSale) {
+            saleTableModel.addRow(new Object[] {
+                    p.getId(),
+                    p.getName(),
+                    p.getQuantity(),
+                    p.getPriceByUnit(),
+                    p.getPriceByUnit() * p.getQuantity()
+            });
+        }
+    }
+
+    private void centerTableText(JTable table) {
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
     }
 
 }
-

@@ -8,7 +8,21 @@ public class Product {
     private double salePrice;
     private double priceByUnit;
     private double priceByCarton;
+    private int quantity;
     private int vendorId;
+
+    public Product(int id, String name, String category, double originalPrice, double salePrice, double priceByUnit,
+            double priceByCarton, int quantity, int vendorId) {
+        this.id = id;
+        this.name = name;
+        this.category = category;
+        this.originalPrice = originalPrice;
+        this.salePrice = salePrice;
+        this.priceByUnit = priceByUnit;
+        this.priceByCarton = priceByCarton;
+        this.quantity = quantity;
+        this.vendorId = vendorId;
+    }
 
     // Getters and Setters
     public int getId() {
@@ -65,6 +79,14 @@ public class Product {
 
     public void setPriceByCarton(double priceByCarton) {
         this.priceByCarton = priceByCarton;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public int getVendorId() {

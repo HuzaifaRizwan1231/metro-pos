@@ -37,14 +37,14 @@ public class LoginPanel extends JPanel {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.gridy = 1;
         gbc.gridx = 0;
-        JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setFont(labelFont);
-        add(usernameLabel, gbc);
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setFont(labelFont);
+        add(emailLabel, gbc);
         gbc.gridx = 1;
-        JTextField usernameField = new JTextField();
-        usernameField.setFont(textFont);
-        usernameField.setPreferredSize(textDimension);
-        add(usernameField, gbc);
+        JTextField emailField = new JTextField();
+        emailField.setFont(textFont);
+        emailField.setPreferredSize(textDimension);
+        add(emailField, gbc);
 
         gbc.gridy = 2;
         gbc.gridx = 0;
@@ -66,21 +66,21 @@ public class LoginPanel extends JPanel {
         add(loginButton, gbc);
 
         loginButton.addActionListener(e -> {
-            String username = usernameField.getText();
+            String email = emailField.getText();
             String password = passwordField.getText();
 
-            if (username.isEmpty() || password.isEmpty()) {
+            if (email.isEmpty() || password.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please Fill All the fields");
                 return;
             }
 
-            if (username.equals("admin@example.com") && password.equals("admin")) {
+            if (email.equals("admin@example.com") && password.equals("admin")) {
                 new AdminFrame();
                 mainFrame.dispose();
                 return;
             }
 
-            Boolean response = authController.authenticate(username, password, role);
+            Boolean response = authController.authenticate(email, password, role);
 
             if (response) {
                 User currentUser = UserStore.getCurrentUser();
@@ -90,7 +90,7 @@ public class LoginPanel extends JPanel {
                     new UpdatePasswordDialog(mainFrame);
 
                 } else {
-                    if (role.equals("Manger")) {
+                    if (role.equals("Manager")) {
                         new BranchManagerFrame();
                     } else if (role.equals("DEO")) {
                         new MainFrame();
