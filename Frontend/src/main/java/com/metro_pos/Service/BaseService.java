@@ -5,7 +5,7 @@ import java.sql.Connection;
 import com.metro_pos.Database.DatabaseConnection;
 
 public class BaseService {
-    Connection conn;
+    protected Connection conn;
 
     public BaseService() {
         this.conn = DatabaseConnection.getConnection();
