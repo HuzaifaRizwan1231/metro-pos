@@ -21,7 +21,7 @@ public class SplashScreen extends JWindow {
         setBounds(x, y, width, height);
 
         // Correct path to your image file
-        String imagePath = "C:\\Users\\l227997\\Documents\\quiz2\\src\\main\\java\\org\\example\\OIP.jpg";
+        String imagePath = "Frontend\\src\\main\\java\\com\\metro_pos\\Images\\OIP.jpg";
         ImageIcon originalIcon = new ImageIcon(imagePath);
 
         // Resize the image

@@ -1,22 +1,25 @@
 package com.metro_pos.View.BranchManager;
 
 import javax.swing.*;
+
+import com.metro_pos.Database.DatabaseConnection;
+
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 public class UpdateEmployeeFrame extends JFrame {
 
     private JTextField nameField;
     private JTextField emailField;
-    private JTextField phoneField;
-    private JTextField addressField;
     private JTextField salaryField;
     private JComboBox<String> roleComboBox;
 
-    public UpdateEmployeeFrame(int employeeCode, String name, String email, String phone, String address, double salary, String role) {
+    public UpdateEmployeeFrame(int employeeCode, String name, String email, double salary, String role) {
         // Set up the frame
         setTitle("Update Employee");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(600, 700); // Increased size
+        setSize(600, 600); // Adjusted size
         setLocationRelativeTo(null); // Center the frame on the screen
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -38,18 +41,6 @@ public class UpdateEmployeeFrame extends JFrame {
         emailField = new JTextField(20);
         emailField.setFont(largeFont);
         emailField.setText(email);
-
-        JLabel phoneLabel = new JLabel("Phone:");
-        phoneLabel.setFont(largeFont);
-        phoneField = new JTextField(20);
-        phoneField.setFont(largeFont);
-        phoneField.setText(phone);
-
-        JLabel addressLabel = new JLabel("Address:");
-        addressLabel.setFont(largeFont);
-        addressField = new JTextField(20);
-        addressField.setFont(largeFont);
-        addressField.setText(address);
 
         JLabel salaryLabel = new JLabel("Salary:");
         salaryLabel.setFont(largeFont);
@@ -79,24 +70,12 @@ public class UpdateEmployeeFrame extends JFrame {
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        add(phoneLabel, gbc);
-        gbc.gridx = 1;
-        add(phoneField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        add(addressLabel, gbc);
-        gbc.gridx = 1;
-        add(addressField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 4;
         add(salaryLabel, gbc);
         gbc.gridx = 1;
         add(salaryField, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 3;
         add(roleLabel, gbc);
         gbc.gridx = 1;
         add(roleComboBox, gbc);
@@ -105,7 +84,7 @@ public class UpdateEmployeeFrame extends JFrame {
         JButton submitButton = new JButton("Submit");
         submitButton.setFont(largeFont);
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         add(submitButton, gbc);
 
@@ -113,26 +92,72 @@ public class UpdateEmployeeFrame extends JFrame {
         JButton cancelButton = new JButton("Cancel");
         cancelButton.setFont(largeFont);
         gbc.gridx = 0;
-        gbc.gridy = 7;
+        gbc.gridy = 5;
         gbc.gridwidth = 2;
         add(cancelButton, gbc);
 
-        // Add action listener for the submit button
-        submitButton.addActionListener(e -> {
-            // Logic to handle updating the employee
-            String updatedName = nameField.getText();
-            String updatedEmail = emailField.getText();
-            String updatedPhone = phoneField.getText();
-            String updatedAddress = addressField.getText();
-            double updatedSalary = Double.parseDouble(salaryField.getText());
-            String updatedRole = (String) roleComboBox.getSelectedItem();
+// Add action listener for the submit button
+submitButton.addActionListener(e -> {
+    try {
+        // Retrieve updated values
+        String updatedName = nameField.getText();
+        String updatedEmail = emailField.getText();
+        String salaryText = salaryField.getText();
+        String updatedRole = (String) roleComboBox.getSelectedItem();
 
-            // Validate and process the input as necessary
+        // Validation
+        // 1. Check if name is empty
+        if (updatedName.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Name is required.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 2. Check if email is empty or doesn't match the email pattern
+        if (updatedEmail.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Email is required.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Regex pattern for email validation
+        String emailPattern = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        if (!updatedEmail.matches(emailPattern)) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid email address.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 3. Check if salary is a valid positive number
+        double updatedSalary;
+        try {
+            updatedSalary = Double.parseDouble(salaryText);
+            if (updatedSalary <= 0) {
+                JOptionPane.showMessageDialog(this, "Salary must be a positive number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Salary must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 4. Check if role is selected
+        if (updatedRole == null || updatedRole.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select a role.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update the employee in the database
+        boolean success = updateEmployeeInDatabase(employeeCode, updatedName, updatedEmail, updatedSalary, updatedRole);
+
+        if (success) {
             JOptionPane.showMessageDialog(this, "Employee updated successfully!");
-
-            // Optionally, close the frame after submission
-            dispose();
-        });
+            dispose(); // Close the frame
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to update the employee. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "An error occurred while updating the employee.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
 
         // Add action listener for the cancel button
         cancelButton.addActionListener(e -> {
@@ -143,8 +168,29 @@ public class UpdateEmployeeFrame extends JFrame {
         // Display the frame
         setVisible(true);
     }
+private boolean updateEmployeeInDatabase(int employeeCode, String name, String email, double salary, String role) {
+    String sql = "UPDATE user SET name = ?, email = ?, salary = ?, role = ? WHERE employee_num = ?";
+    
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement ps = connection.prepareStatement(sql)) {
+        
+        // Set parameters
+        ps.setString(1, name);
+        ps.setString(2, email);
+        ps.setDouble(3, salary);
+        ps.setString(4, role);
+        ps.setInt(5, employeeCode);
+
+        // Execute the update query
+        int rowsAffected = ps.executeUpdate();
+        return rowsAffected > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
 
     public static void main(String[] args) {
-        new UpdateEmployeeFrame(1, "Charlie Brown", "charlie@example.com", "123-456-7890", "123 Main St", 40000.0, "Cashier"); // Example usage
+        new UpdateEmployeeFrame(1, "Charlie Brown", "charlie@example.com", 40000.0, "Cashier"); // Example usage
     }
 }

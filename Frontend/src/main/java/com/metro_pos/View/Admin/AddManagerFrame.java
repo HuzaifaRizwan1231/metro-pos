@@ -107,7 +107,7 @@ public class AddManagerFrame extends JFrame {
 
                 // Call the controller to handle adding the manager
                 ManagerController managerController = new ManagerController();
-                boolean isAdded = managerController.addManager(name, email, branchCode, salaryDouble);  // Corrected method call
+                boolean isAdded = managerController.addManager(name, email, branchCode, salaryDouble,"Manager");  // Corrected method call
 
                 // Provide feedback based on the operation result
                 if (isAdded) {
