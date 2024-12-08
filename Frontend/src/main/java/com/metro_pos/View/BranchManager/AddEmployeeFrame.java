@@ -4,6 +4,8 @@ import javax.swing.*;
 
 import com.metro_pos.Controller.ManagerController;
 import com.metro_pos.Database.DatabaseConnection;
+import com.metro_pos.Model.User;
+import com.metro_pos.Store.UserStore;
 
 import java.awt.*;
 import java.sql.Connection;
@@ -144,7 +146,8 @@ public class AddEmployeeFrame extends JFrame {
         
             int branchid = 1;  // Static for now, modify as per your actual logic
              ManagerController managerController = new ManagerController();
-
+             User u=UserStore.getCurrentUser();
+             branchid=u.getBranchCode();
             managerController.addManager(name, email, branchid, salary,role);  // Corrected method call
         
             // If all validations pass, proceed with adding the employee (e.g., storing to a database or a list)
