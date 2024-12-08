@@ -93,15 +93,15 @@ public class UpdatePasswordDialog extends JDialog {
                         JOptionPane.showMessageDialog(UpdatePasswordDialog.this,
                                 "Password updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
-                        if (UserStore.getCurrentUser().getRole().equals("Manger")) {
+                        if (UserStore.getCurrentUser().getRole().equals("Manager")) {
                             new BranchManagerFrame();
                         } else if (UserStore.getCurrentUser().getRole().equals("DEO")) {
                             new com.metro_pos.View.DataEntryOperator.MainFrame();
                         } else if (UserStore.getCurrentUser().getRole().equals("Cashier")) {
                             new com.metro_pos.View.Cashier.MainFrame();
                         }
-                        parent.dispose();
                         dispose();
+                        parent.dispose();
                     } else {
                         JOptionPane.showMessageDialog(UpdatePasswordDialog.this,
                                 "An Error Occurred.", "Error", JOptionPane.ERROR_MESSAGE);

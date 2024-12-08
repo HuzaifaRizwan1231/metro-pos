@@ -3,13 +3,11 @@ package com.metro_pos.View.Cashier;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import com.metro_pos.Controller.ProductController;
+import com.metro_pos.Controller.SalesController;
 import com.metro_pos.Model.Product;
 
 import java.awt.*;
@@ -25,14 +23,19 @@ public class GenerateSaleDialogue extends JDialog {
     private DefaultTableModel suggestionTableModel;
     private DefaultTableModel saleTableModel;
     private ProductController productController;
+    private SalesController salesController;
     private List<Product> productInSale;
     private List<Product> suggestions;
+    private JButton generateSaleButton;
+
+    private JLabel totalLabel; // JLabel to display the total amount
 
     public GenerateSaleDialogue(JFrame parent) {
         super(parent, "Generate Sale", true);
         setLayout(new BorderLayout());
 
         this.productController = new ProductController();
+        this.salesController = new SalesController();
         this.productInSale = new ArrayList<>();
 
         String[] columnNames = { "ID", "Name", "Quantity", "Unit Price", "Total Price" };
@@ -67,6 +70,10 @@ public class GenerateSaleDialogue extends JDialog {
         add(mainPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
+        totalLabel = new JLabel("Total: Rs. 0.00", SwingConstants.RIGHT);
+        totalLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        buttonPanel.add(totalLabel);
+
         setSize(800, 600);
         setLocationRelativeTo(parent);
         setResizable(false);
@@ -76,7 +83,6 @@ public class GenerateSaleDialogue extends JDialog {
         saleTableModel.addTableModelListener(e -> {
             int row = e.getFirstRow();
             int column = e.getColumn();
-            System.out.println("EDITING");
             if (column == 2) {
                 try {
                     int newQuantity = Integer.parseInt(saleTableModel.getValueAt(row, column).toString());
@@ -98,10 +104,6 @@ public class GenerateSaleDialogue extends JDialog {
                     updateSaleTable();
                 }
             }
-
-            productTable.revalidate();
-            productTable.repaint();
-
         });
     }
 
@@ -161,8 +163,17 @@ public class GenerateSaleDialogue extends JDialog {
     }
 
     private JPanel createButtonPanel() {
-        JButton generateSaleButton = new JButton("Generate Sale");
-        generateSaleButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Sale generated successfully!"));
+        generateSaleButton = new JButton("Generate Sale");
+        generateSaleButton.addActionListener(e -> {
+            generateSaleButton.setEnabled(false);
+            if (salesController.generateSale(productInSale)) {
+                JOptionPane.showMessageDialog(this, "Sale generated successfully!");
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "An Error Occurred.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            generateSaleButton.setEnabled(true);
+        });
 
         JButton deleteButton = new JButton("Delete Item");
         deleteButton.addActionListener(e -> deleteSelectedItem());
@@ -249,15 +260,20 @@ public class GenerateSaleDialogue extends JDialog {
     private void updateSaleTable() {
         saleTableModel.setRowCount(0);
 
+        double totalAmount = 0;
         for (Product p : productInSale) {
+            double totalPrice = p.getPriceByUnit() * p.getQuantity();
             saleTableModel.addRow(new Object[] {
                     p.getId(),
                     p.getName(),
                     p.getQuantity(),
                     p.getPriceByUnit(),
-                    p.getPriceByUnit() * p.getQuantity()
+                    totalPrice
             });
+            totalAmount += totalPrice;
         }
+
+        totalLabel.setText(String.format("Total: Rs. %.2f", totalAmount));
     }
 
     private void centerTableText(JTable table) {

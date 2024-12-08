@@ -11,10 +11,12 @@ public class DatabaseConnection {
 
     public static Connection getConnection() {
         try {
-            if (conn != null) {
-                return conn;
+            if (conn == null) {
+                conn = DriverManager.getConnection(URL);
             }
-            return DriverManager.getConnection(URL);
+
+            conn.setNetworkTimeout(null, 5000);
+            return conn;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
