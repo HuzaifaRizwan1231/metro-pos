@@ -88,12 +88,9 @@ public class ManageEmployeeFrame extends JFrame {
         addEmployeeButton.addActionListener(e -> {
             AddEmployeeFrame addEmployeeFrame = new AddEmployeeFrame();
 
-            // Add a WindowListener to reload the table data after the AddEmployeeFrame is
-            // closed
             addEmployeeFrame.addWindowListener(new java.awt.event.WindowAdapter() {
                 @Override
                 public void windowClosed(java.awt.event.WindowEvent e) {
-                    // Refresh the table after adding an employee
                     refreshTableData(model, 1, "Cashier", "DEO");
                 }
             });

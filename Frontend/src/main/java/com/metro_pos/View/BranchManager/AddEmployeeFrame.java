@@ -10,6 +10,7 @@ import com.metro_pos.Store.UserStore;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class AddEmployeeFrame extends JFrame {
 
@@ -143,7 +144,10 @@ public class AddEmployeeFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Please select a role.", "Validation Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        
+            if (emailExists(email)) {
+                JOptionPane.showMessageDialog(this, "Email already exists. Please use a different email.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             int branchid = 1;  // Static for now, modify as per your actual logic
              ManagerController managerController = new ManagerController();
              User u=UserStore.getCurrentUser();
@@ -168,7 +172,22 @@ public class AddEmployeeFrame extends JFrame {
 
 
     }
-
+private boolean emailExists(String email) {
+    String query = "SELECT COUNT(*) FROM user WHERE email = ?";
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement ps = connection.prepareStatement(query)) {
+        ps.setString(1, email);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Email exists if the count is greater than 0
+            }
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error checking email existence: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+    }
+    return false; // Default to false if there's an error
+}
 
     public static void main(String[] args) {
         new AddEmployeeFrame(); // Create an instance of AddEmployeeFrame

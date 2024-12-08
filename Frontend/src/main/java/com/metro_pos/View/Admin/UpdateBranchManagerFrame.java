@@ -3,6 +3,9 @@ package com.metro_pos.View.Admin;
 import javax.swing.*;
 import com.metro_pos.Database.DatabaseConnection;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class UpdateBranchManagerFrame extends JFrame {
 
@@ -106,7 +109,10 @@ public class UpdateBranchManagerFrame extends JFrame {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
+            if (emailExists(email)) {
+                JOptionPane.showMessageDialog(this, "Email already exists. Please use a different email.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             // Call method to update
             boolean updateSuccess = updateBranchManager(managerCode, updatedName, updatedEmail, updatedSalary);
 
@@ -126,7 +132,22 @@ public class UpdateBranchManagerFrame extends JFrame {
         // Display the frame
         setVisible(true);
     }
-
+private boolean emailExists(String email) {
+    String query = "SELECT COUNT(*) FROM user WHERE email = ?";
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement ps = connection.prepareStatement(query)) {
+        ps.setString(1, email);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Email exists if the count is greater than 0
+            }
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error checking email existence: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+    }
+    return false; // Default to false if there's an error
+}
     // Update branch manager method
     private boolean updateBranchManager(int managerCode, String name, String email, double salary) {
         String sql = "UPDATE user SET name = ?, email = ?, salary = ? WHERE employee_num = ?";

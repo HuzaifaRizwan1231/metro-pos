@@ -7,6 +7,7 @@ import com.metro_pos.Database.DatabaseConnection;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class UpdateEmployeeFrame extends JFrame {
 
@@ -149,7 +150,10 @@ public class UpdateEmployeeFrame extends JFrame {
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
+                if (emailExists(email)) {
+                    JOptionPane.showMessageDialog(this, "Email already exists. Please use a different email.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 // Update the employee in the database
                 boolean success = updateEmployeeInDatabase(employeeCode, updatedName, updatedEmail, updatedSalary,
                         updatedRole);
@@ -177,6 +181,22 @@ public class UpdateEmployeeFrame extends JFrame {
         // Display the frame
         setVisible(true);
     }
+private boolean emailExists(String email) {
+    String query = "SELECT COUNT(*) FROM user WHERE email = ?";
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement ps = connection.prepareStatement(query)) {
+        ps.setString(1, email);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Email exists if the count is greater than 0
+            }
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error checking email existence: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+    }
+    return false; // Default to false if there's an error
+}
 
     private boolean updateEmployeeInDatabase(int employeeCode, String name, String email, double salary, String role) {
         String sql = "UPDATE user SET name = ?, email = ?, salary = ?, role = ? WHERE employee_num = ?";
