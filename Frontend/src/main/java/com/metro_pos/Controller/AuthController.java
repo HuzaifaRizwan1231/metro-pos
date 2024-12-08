@@ -1,6 +1,10 @@
 package com.metro_pos.Controller;
 
+import java.util.Map;
+
+import com.metro_pos.Model.User;
 import com.metro_pos.Service.UserService;
+import com.metro_pos.Store.UserStore;
 
 public class AuthController {
 
@@ -10,10 +14,20 @@ public class AuthController {
         this.userService = new UserService();
     }
 
-    public void authenticate(String userName, String password) {
+    public boolean authenticate(String userName, String password, String role) {
 
-        userService.getByUserName(userName);
+        User user = userService.getByUserNameAndPasswordAndRole(userName, password, role);
 
-        return;
+        if (user == null) {
+            return false;
+        }
+
+        UserStore.setCurrentUser(user);
+
+        return true;
+    }
+
+    public boolean updatePassword(String password) {
+        return userService.update(password);
     }
 }

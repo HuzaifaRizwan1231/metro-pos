@@ -3,6 +3,11 @@ package com.metro_pos.View.Login;
 import javax.swing.*;
 
 import com.metro_pos.Controller.AuthController;
+import com.metro_pos.Model.User;
+import com.metro_pos.Store.UserStore;
+import com.metro_pos.View.Admin.AdminFrame;
+import com.metro_pos.View.BranchManager.BranchManagerFrame;
+import com.metro_pos.View.DataEntryOperator.MainFrame;
 
 import java.awt.*;
 
@@ -10,7 +15,7 @@ public class LoginPanel extends JPanel {
 
     private AuthController authController;
 
-    public LoginPanel(String role) {
+    public LoginPanel(String role, JFrame mainFrame) {
         this.authController = new AuthController();
 
         setLayout(new GridBagLayout());
@@ -69,7 +74,35 @@ public class LoginPanel extends JPanel {
                 return;
             }
 
-            authController.authenticate(username, password);
+            if (username.equals("admin@example.com") && password.equals("admin")) {
+                new AdminFrame();
+                mainFrame.dispose();
+                return;
+            }
+
+            Boolean response = authController.authenticate(username, password, role);
+
+            if (response) {
+                User currentUser = UserStore.getCurrentUser();
+
+                if (currentUser.getIsFirstLogin()) {
+                    // redirect to change password
+                    new UpdatePasswordDialog(mainFrame);
+
+                } else {
+                    if (role.equals("Manger")) {
+                        new BranchManagerFrame();
+                    } else if (role.equals("DEO")) {
+                        new MainFrame();
+                    } else if (role.equals("Cashier")) {
+                        new com.metro_pos.View.Cashier.MainFrame();
+                    }
+                    mainFrame.dispose();
+                }
+
+            } else {
+                JOptionPane.showMessageDialog(this, "Incorrect Credentials");
+            }
         });
     }
 }
