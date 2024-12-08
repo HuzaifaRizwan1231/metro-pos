@@ -1,7 +1,15 @@
 package com.metro_pos.Controller;
+import javax.swing.*;
+import com.metro_pos.Controller.ManagerController;
+import com.metro_pos.Controller.BranchController;
+import java.awt.*;
+import java.util.List;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+
+import javax.swing.JOptionPane;
+
 import com.metro_pos.Database.DatabaseConnection;
 
 public class ManagerController {
@@ -44,6 +52,7 @@ public class ManagerController {
                     return false;
                 }
             } catch (Exception ex) {
+                
                 connection.rollback(); // Rollback in case of exception
                 throw ex;
             }
