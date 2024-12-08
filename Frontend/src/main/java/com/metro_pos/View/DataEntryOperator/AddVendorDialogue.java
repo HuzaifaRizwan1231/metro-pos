@@ -10,7 +10,10 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+
+import com.metro_pos.Controller.DEOController;
 
 class AddVendorDialogue extends JDialog {
     public AddVendorDialogue(JDialog parent) {
@@ -43,7 +46,31 @@ class AddVendorDialogue extends JDialog {
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AddNewProduct(parent);
+                String name = nameField.getText();
+                String phone = phoneField.getText();
+                String address = addressField.getText();
+
+                boolean hasNonDigits = phone.matches(".*\\D.*"); // Checks if there is any non-digit character in the string
+                if(name.isEmpty() || phone.isEmpty() || address.isEmpty()) {
+                    JOptionPane.showMessageDialog(AddVendorDialogue.this, "Please fill all fields", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                else if(hasNonDigits) {
+                    JOptionPane.showMessageDialog(AddVendorDialogue.this, "Phone number must contain only digits", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                else{
+                    // Save the vendor to the database
+                    DEOController deoController = new DEOController();
+                    boolean saved = deoController.addVendor(name, phone, address);
+                    if(saved){
+                        JOptionPane.showMessageDialog(AddVendorDialogue.this, "Vendor saved successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        new AddNewProduct(parent);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(AddVendorDialogue.this, "Failed to save vendor", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
                 dispose();
             }
         });

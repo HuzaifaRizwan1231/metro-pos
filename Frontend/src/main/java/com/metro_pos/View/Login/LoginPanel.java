@@ -1,10 +1,18 @@
 package com.metro_pos.View.Login;
 
 import javax.swing.*;
+
+import com.metro_pos.Controller.AuthController;
+
 import java.awt.*;
 
 public class LoginPanel extends JPanel {
+
+    private AuthController authController;
+
     public LoginPanel(String role) {
+        this.authController = new AuthController();
+
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -51,5 +59,17 @@ public class LoginPanel extends JPanel {
         loginButton.setPreferredSize(new Dimension(70, 40));
         loginButton.setFocusPainted(false);
         add(loginButton, gbc);
+
+        loginButton.addActionListener(e -> {
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please Fill All the fields");
+                return;
+            }
+
+            authController.authenticate(username, password);
+        });
     }
 }
