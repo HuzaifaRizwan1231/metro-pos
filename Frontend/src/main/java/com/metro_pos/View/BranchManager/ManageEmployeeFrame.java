@@ -31,7 +31,7 @@ public class ManageEmployeeFrame extends JFrame {
         setLayout(new BorderLayout());
 
         // Create the table with updated columns
-        String[] columnNames = {"Employee Code", "Name", "Email", "Branch Code", "Salary", "Role"};
+        String[] columnNames = { "Employee Code", "Name", "Email", "Branch Code", "Salary", "Role" };
         Object[][] data = fetchEmployeeData(1, "Cashier", "DEO");
 
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
@@ -80,15 +80,16 @@ public class ManageEmployeeFrame extends JFrame {
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Add action listeners for buttons
-        backButton.addActionListener(e ->{
+        backButton.addActionListener(e -> {
             new BranchManagerFrame();
             dispose();
-        } );
+        });
 
         addEmployeeButton.addActionListener(e -> {
             AddEmployeeFrame addEmployeeFrame = new AddEmployeeFrame();
-        
-            // Add a WindowListener to reload the table data after the AddEmployeeFrame is closed
+
+            // Add a WindowListener to reload the table data after the AddEmployeeFrame is
+            // closed
             addEmployeeFrame.addWindowListener(new java.awt.event.WindowAdapter() {
                 @Override
                 public void windowClosed(java.awt.event.WindowEvent e) {
@@ -97,7 +98,7 @@ public class ManageEmployeeFrame extends JFrame {
                 }
             });
         });
-        
+
         deleteEmployeeButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             int employeeCode = (int) table.getValueAt(selectedRow, 0);
@@ -119,11 +120,13 @@ public class ManageEmployeeFrame extends JFrame {
                 int branchCode = (int) table.getValueAt(selectedRow, 3);
                 double salary = (double) table.getValueAt(selectedRow, 4);
                 String role = (String) table.getValueAt(selectedRow, 5);
-        
+
                 // Open the UpdateEmployeeFrame with the selected employee's details
-                UpdateEmployeeFrame updateEmployeeFrame = new UpdateEmployeeFrame(employeeCode, name, email, salary, role);
-        
-                // Add a WindowListener to reload the table data after the UpdateEmployeeFrame is closed
+                UpdateEmployeeFrame updateEmployeeFrame = new UpdateEmployeeFrame(employeeCode, name, email, salary,
+                        role);
+
+                // Add a WindowListener to reload the table data after the UpdateEmployeeFrame
+                // is closed
                 updateEmployeeFrame.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosed(java.awt.event.WindowEvent e) {
@@ -131,12 +134,12 @@ public class ManageEmployeeFrame extends JFrame {
                         refreshTableData(model, 1, "Cashier", "DEO");
                     }
                 });
-        
+
             } else {
                 JOptionPane.showMessageDialog(this, "No employee selected");
             }
         });
-        
+
         table.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
                 boolean isSelected = table.getSelectedRow() != -1;
@@ -148,51 +151,57 @@ public class ManageEmployeeFrame extends JFrame {
         // Display the frame
         setVisible(true);
     }
+
     private void refreshTableData(DefaultTableModel model, int branchId, String... roles) {
         // Fetch updated data
         Object[][] updatedData = fetchEmployeeData(branchId, roles);
-    
+
         // Clear existing rows in the table model
         model.setRowCount(0);
-    
+
         // Add updated rows to the table model
         for (Object[] row : updatedData) {
             model.addRow(row);
         }
     }
-    
+
     private boolean deleteEmployeeFromDatabase(int employeeCode) {
         String sql = "DELETE FROM user WHERE employee_num = ?"; // SQL DELETE query
-    
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
-    
+
+        try {
+
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql);
+
             // Set the employee code to the prepared statement
             ps.setInt(1, employeeCode);
-    
+
             // Execute the DELETE statement
             int rowsAffected = ps.executeUpdate();
-    
-            // Return true if one or more rows were affected, meaning the employee was deleted
+
+            // Return true if one or more rows were affected, meaning the employee was
+            // deleted
             return rowsAffected > 0;
-    
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false; // Return false if there was an error while deleting
         }
     }
-    
-        private Object[][] fetchEmployeeData(int branchId, String... roles) {
+
+    private Object[][] fetchEmployeeData(int branchId, String... roles) {
         ArrayList<Object[]> employeeData = new ArrayList<>();
         String sql = "SELECT * FROM user WHERE branch_code = ? AND role IN (?, ?)"; // Query with placeholders
 
-        try (Connection conn = DatabaseConnection.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-             
+        try {
+
+            Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+
             ps.setInt(1, branchId); // Set the branch ID
             ps.setString(2, roles[0]); // Set the first role
             ps.setString(3, roles[1]); // Set the second role
-            
+
             ResultSet rs = ps.executeQuery();
 
             // Iterate over the result set and store the data in the ArrayList
@@ -204,7 +213,7 @@ public class ManageEmployeeFrame extends JFrame {
                 double salary = rs.getDouble("salary");
                 String role = rs.getString("role");
 
-                employeeData.add(new Object[]{employeeCode, name, email, branchCode, salary, role});
+                employeeData.add(new Object[] { employeeCode, name, email, branchCode, salary, role });
             }
 
         } catch (SQLException e) {

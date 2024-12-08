@@ -14,9 +14,9 @@ public class BranchModel {
 
     public void insert(String name, String city, String address, String phone) {
         String sql = "INSERT INTO branch (name, city, address, phone) VALUES (?, ?, ?, ?)";
-        try (Connection c = DatabaseConnection.getConnection();
-                PreparedStatement ps = c.prepareStatement(sql)) {
-
+        try {
+            Connection c = DatabaseConnection.getConnection();
+            PreparedStatement ps = c.prepareStatement(sql);
             ps.setString(1, name);
             ps.setString(2, city);
             ps.setString(3, address);
@@ -37,9 +37,11 @@ public class BranchModel {
         String sql = "SELECT * FROM branch"; // Adjust query if needed
         List<String[]> rows = new ArrayList<>();
 
-        try (Connection c = DatabaseConnection.getConnection();
-                PreparedStatement ps = c.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try {
+
+            Connection c = DatabaseConnection.getConnection();
+            PreparedStatement ps = c.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 String[] row = new String[8];
@@ -67,8 +69,10 @@ public class BranchModel {
     public void updateBranch(int branchCode, String name, String city, String address, boolean isActive, String phone) {
         String sql = "UPDATE branch SET name = ?, city = ?, address = ?, is_active = ?, phone = ? WHERE branch_code = ?";
 
-        try (Connection c = DatabaseConnection.getConnection();
-                PreparedStatement ps = c.prepareStatement(sql)) {
+        try {
+
+            Connection c = DatabaseConnection.getConnection();
+            PreparedStatement ps = c.prepareStatement(sql);
 
             ps.setString(1, name);
             ps.setString(2, city);
@@ -93,9 +97,11 @@ public class BranchModel {
         List<Integer> branchCodes = new ArrayList<>();
         String sql = "SELECT branch_code FROM branch WHERE manager_assigned = false AND is_active = true";
 
-        try (Connection connection = DatabaseConnection.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try {
+
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 branchCodes.add(rs.getInt("branch_code"));
@@ -110,9 +116,9 @@ public class BranchModel {
     public boolean deleteBranch(int branchCode) {
         String sql = "DELETE FROM branch WHERE branch_code = ?"; // Corrected table name to match your schema
 
-        try (Connection c = DatabaseConnection.getConnection();
-                PreparedStatement ps = c.prepareStatement(sql)) {
-
+        try {
+            Connection c = DatabaseConnection.getConnection();
+            PreparedStatement ps = c.prepareStatement(sql);
             ps.setInt(1, branchCode);
 
             int rowsAffected = ps.executeUpdate();

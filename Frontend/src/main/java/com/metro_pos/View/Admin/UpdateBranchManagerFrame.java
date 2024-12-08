@@ -14,11 +14,11 @@ public class UpdateBranchManagerFrame extends JFrame {
         // Set up the frame
         setTitle("Update Branch Manager");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(600, 400); 
+        setSize(600, 400);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); 
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Define larger font
@@ -90,17 +90,20 @@ public class UpdateBranchManagerFrame extends JFrame {
                 return;
             }
             if (!updatedEmail.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
-                JOptionPane.showMessageDialog(this, "Please enter a valid email address.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Please enter a valid email address.", "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
             try {
                 updatedSalary = Double.parseDouble(salaryField.getText().trim());
                 if (updatedSalary <= 0) {
-                    JOptionPane.showMessageDialog(this, "Salary must be a positive number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Salary must be a positive number.", "Validation Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Salary must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Salary must be a valid number.", "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -112,7 +115,8 @@ public class UpdateBranchManagerFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Branch manager updated successfully!");
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to update branch manager. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Failed to update branch manager. Please try again.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -126,8 +130,10 @@ public class UpdateBranchManagerFrame extends JFrame {
     // Update branch manager method
     private boolean updateBranchManager(int managerCode, String name, String email, double salary) {
         String sql = "UPDATE user SET name = ?, email = ?, salary = ? WHERE employee_num = ?";
-        try (var conn = DatabaseConnection.getConnection();
-             var ps = conn.prepareStatement(sql)) {
+        try {
+
+            var conn = DatabaseConnection.getConnection();
+            var ps = conn.prepareStatement(sql);
 
             ps.setString(1, name);
             ps.setString(2, email);
