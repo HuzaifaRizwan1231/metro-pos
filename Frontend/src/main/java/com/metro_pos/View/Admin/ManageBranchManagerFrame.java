@@ -26,8 +26,8 @@ public class ManageBranchManagerFrame extends JFrame {
         setLayout(new BorderLayout());
 
         // Create the table with updated columns (removed "Address")
-        String[] columnNames = {"Employee Code", "Name", "Email", "Branch Code", "Salary"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);  // Initially no data
+        String[] columnNames = { "Employee Code", "Name", "Email", "Branch Code", "Salary" };
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0); // Initially no data
 
         table = new JTable(model);
 
@@ -80,8 +80,9 @@ public class ManageBranchManagerFrame extends JFrame {
         });
         addManagerButton.addActionListener(e -> {
             AddManagerFrame addManagerFrame = new AddManagerFrame();
-        
-            // Add a WindowListener to reload the table data after the AddManagerFrame is closed
+
+            // Add a WindowListener to reload the table data after the AddManagerFrame is
+            // closed
             addManagerFrame.addWindowListener(new java.awt.event.WindowAdapter() {
                 @Override
                 public void windowClosed(java.awt.event.WindowEvent e) {
@@ -89,7 +90,7 @@ public class ManageBranchManagerFrame extends JFrame {
                 }
             });
         });
-        
+
         updateManagerButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
@@ -99,11 +100,13 @@ public class ManageBranchManagerFrame extends JFrame {
                 String email = (String) table.getValueAt(selectedRow, 2);
                 int branchCode = (int) table.getValueAt(selectedRow, 3);
                 double salary = (double) table.getValueAt(selectedRow, 4);
-        
+
                 // Open the UpdateBranchManagerFrame with the selected manager's details
-                UpdateBranchManagerFrame updateBranchManagerFrame = new UpdateBranchManagerFrame(managerCode, name, email, salary);
-        
-                // Add a WindowListener to reload the table data after the UpdateBranchManagerFrame is closed
+                UpdateBranchManagerFrame updateBranchManagerFrame = new UpdateBranchManagerFrame(managerCode, name,
+                        email, salary);
+
+                // Add a WindowListener to reload the table data after the
+                // UpdateBranchManagerFrame is closed
                 updateBranchManagerFrame.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosed(java.awt.event.WindowEvent e) {
@@ -125,7 +128,6 @@ public class ManageBranchManagerFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "No manager selected");
             }
         });
-        
 
         table.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
@@ -142,15 +144,18 @@ public class ManageBranchManagerFrame extends JFrame {
         setVisible(true);
     }
 
-    // Method to load manager data from the database (modified query to exclude "Address")
+    // Method to load manager data from the database (modified query to exclude
+    // "Address")
     private void loadManagerData() {
         String sql = "SELECT employee_num, name, email, branch_code, salary FROM user WHERE role = 'Manager'";
         DefaultTableModel model = (DefaultTableModel) table.getModel();
-        model.setRowCount(0);  // Clear the table before loading new data
+        model.setRowCount(0); // Clear the table before loading new data
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try {
+
+            Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 int employeeCode = rs.getInt("employee_num");
@@ -160,48 +165,52 @@ public class ManageBranchManagerFrame extends JFrame {
                 double salary = rs.getDouble("salary");
 
                 // Add row to the table
-                model.addRow(new Object[]{employeeCode, name, email, branchCode, salary});
+                model.addRow(new Object[] { employeeCode, name, email, branchCode, salary });
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading manager data.", "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading manager data.", "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
-// Method to delete a manager from the database
-private void deleteManager(int employeeCode, int branchCode) {
-    String deleteManagerSql = "DELETE FROM user WHERE employee_num = ? AND role = 'Manager'";
-    String updateBranchSql = "UPDATE branch SET manager_assigned = 0 WHERE branch_code = ?";
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement deletePs = conn.prepareStatement(deleteManagerSql);
-         PreparedStatement updatePs = conn.prepareStatement(updateBranchSql)) {
+    // Method to delete a manager from the database
+    private void deleteManager(int employeeCode, int branchCode) {
+        String deleteManagerSql = "DELETE FROM user WHERE employee_num = ? AND role = 'Manager'";
+        String updateBranchSql = "UPDATE branch SET manager_assigned = 0 WHERE branch_code = ?";
 
-        conn.setAutoCommit(false); // Begin transaction
+        try {
 
-        // Prepare and execute delete manager query
-        deletePs.setInt(1, employeeCode);
-        int rowsAffected = deletePs.executeUpdate();
+            Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement deletePs = conn.prepareStatement(deleteManagerSql);
+            PreparedStatement updatePs = conn.prepareStatement(updateBranchSql);
 
-        if (rowsAffected > 0) {
-            // Update the branch's manager_assigned status
-            updatePs.setInt(1, branchCode);
-            updatePs.executeUpdate();
+            conn.setAutoCommit(false); // Begin transaction
 
-            conn.commit(); // Commit transaction
-            JOptionPane.showMessageDialog(this, "Manager deleted successfully.");
-            loadManagerData(); // Reload the manager data after deletion
-        } else {
-            conn.rollback(); // Rollback transaction in case of failure
-            JOptionPane.showMessageDialog(this, "Failed to delete manager. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            // Prepare and execute delete manager query
+            deletePs.setInt(1, employeeCode);
+            int rowsAffected = deletePs.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // Update the branch's manager_assigned status
+                updatePs.setInt(1, branchCode);
+                updatePs.executeUpdate();
+
+                conn.commit(); // Commit transaction
+                JOptionPane.showMessageDialog(this, "Manager deleted successfully.");
+                loadManagerData(); // Reload the manager data after deletion
+            } else {
+                conn.rollback(); // Rollback transaction in case of failure
+                JOptionPane.showMessageDialog(this, "Failed to delete manager. Please try again.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error deleting manager.", "Database Error", JOptionPane.ERROR_MESSAGE);
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error deleting manager.", "Database Error", JOptionPane.ERROR_MESSAGE);
     }
-}
-
 
     public static void main(String[] args) {
         new ManageBranchManagerFrame(); // Create an instance of ManageBranchManagerFrame

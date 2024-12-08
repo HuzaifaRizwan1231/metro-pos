@@ -50,7 +50,7 @@ public class UpdateEmployeeFrame extends JFrame {
 
         JLabel roleLabel = new JLabel("Role:");
         roleLabel.setFont(largeFont);
-        String[] roles = {"Cashier", "DEO"};
+        String[] roles = { "Cashier", "DEO" };
         roleComboBox = new JComboBox<>(roles);
         roleComboBox.setFont(largeFont);
         roleComboBox.setSelectedItem(role);
@@ -96,68 +96,77 @@ public class UpdateEmployeeFrame extends JFrame {
         gbc.gridwidth = 2;
         add(cancelButton, gbc);
 
-// Add action listener for the submit button
-submitButton.addActionListener(e -> {
-    try {
-        // Retrieve updated values
-        String updatedName = nameField.getText();
-        String updatedEmail = emailField.getText();
-        String salaryText = salaryField.getText();
-        String updatedRole = (String) roleComboBox.getSelectedItem();
+        // Add action listener for the submit button
+        submitButton.addActionListener(e -> {
+            try {
+                // Retrieve updated values
+                String updatedName = nameField.getText();
+                String updatedEmail = emailField.getText();
+                String salaryText = salaryField.getText();
+                String updatedRole = (String) roleComboBox.getSelectedItem();
 
-        // Validation
-        // 1. Check if name is empty
-        if (updatedName.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Name is required.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+                // Validation
+                // 1. Check if name is empty
+                if (updatedName.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Name is required.", "Validation Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-        // 2. Check if email is empty or doesn't match the email pattern
-        if (updatedEmail.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Email is required.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+                // 2. Check if email is empty or doesn't match the email pattern
+                if (updatedEmail.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Email is required.", "Validation Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-        // Regex pattern for email validation
-        String emailPattern = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        if (!updatedEmail.matches(emailPattern)) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid email address.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+                // Regex pattern for email validation
+                String emailPattern = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+                if (!updatedEmail.matches(emailPattern)) {
+                    JOptionPane.showMessageDialog(this, "Please enter a valid email address.", "Validation Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-        // 3. Check if salary is a valid positive number
-        double updatedSalary;
-        try {
-            updatedSalary = Double.parseDouble(salaryText);
-            if (updatedSalary <= 0) {
-                JOptionPane.showMessageDialog(this, "Salary must be a positive number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                return;
+                // 3. Check if salary is a valid positive number
+                double updatedSalary;
+                try {
+                    updatedSalary = Double.parseDouble(salaryText);
+                    if (updatedSalary <= 0) {
+                        JOptionPane.showMessageDialog(this, "Salary must be a positive number.", "Validation Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Salary must be a valid number.", "Validation Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // 4. Check if role is selected
+                if (updatedRole == null || updatedRole.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Please select a role.", "Validation Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Update the employee in the database
+                boolean success = updateEmployeeInDatabase(employeeCode, updatedName, updatedEmail, updatedSalary,
+                        updatedRole);
+
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Employee updated successfully!");
+                    dispose(); // Close the frame
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update the employee. Please try again.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "An error occurred while updating the employee.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Salary must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // 4. Check if role is selected
-        if (updatedRole == null || updatedRole.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please select a role.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Update the employee in the database
-        boolean success = updateEmployeeInDatabase(employeeCode, updatedName, updatedEmail, updatedSalary, updatedRole);
-
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Employee updated successfully!");
-            dispose(); // Close the frame
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to update the employee. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(this, "An error occurred while updating the employee.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-});
+        });
 
         // Add action listener for the cancel button
         cancelButton.addActionListener(e -> {
@@ -168,27 +177,30 @@ submitButton.addActionListener(e -> {
         // Display the frame
         setVisible(true);
     }
-private boolean updateEmployeeInDatabase(int employeeCode, String name, String email, double salary, String role) {
-    String sql = "UPDATE user SET name = ?, email = ?, salary = ?, role = ? WHERE employee_num = ?";
-    
-    try (Connection connection = DatabaseConnection.getConnection();
-         PreparedStatement ps = connection.prepareStatement(sql)) {
-        
-        // Set parameters
-        ps.setString(1, name);
-        ps.setString(2, email);
-        ps.setDouble(3, salary);
-        ps.setString(4, role);
-        ps.setInt(5, employeeCode);
 
-        // Execute the update query
-        int rowsAffected = ps.executeUpdate();
-        return rowsAffected > 0;
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
+    private boolean updateEmployeeInDatabase(int employeeCode, String name, String email, double salary, String role) {
+        String sql = "UPDATE user SET name = ?, email = ?, salary = ?, role = ? WHERE employee_num = ?";
+
+        try {
+
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            // Set parameters
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setDouble(3, salary);
+            ps.setString(4, role);
+            ps.setInt(5, employeeCode);
+
+            // Execute the update query
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
-}
 
     public static void main(String[] args) {
         new UpdateEmployeeFrame(1, "Charlie Brown", "charlie@example.com", 40000.0, "Cashier"); // Example usage
