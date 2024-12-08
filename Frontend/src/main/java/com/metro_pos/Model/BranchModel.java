@@ -91,7 +91,7 @@ public class BranchModel {
 
     public List<Integer> getUnassignedBranchCodes() {
         List<Integer> branchCodes = new ArrayList<>();
-        String sql = "SELECT branch_code FROM branch WHERE manager_assigned = false";
+        String sql = "SELECT branch_code FROM branch WHERE manager_assigned = false AND is_active = true";
 
         try (Connection connection = DatabaseConnection.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql);
