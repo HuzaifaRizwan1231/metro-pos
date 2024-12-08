@@ -30,15 +30,15 @@ public class AdminFrame extends JFrame {
         JButton manageBranchButton = new JButton("Manage Branch");
         manageBranchButton.setPreferredSize(buttonSize);
         manageBranchButton.setFont(buttonFont);
-        
+
         JButton manageBankButton = new JButton("Manage Branch Manager");
         manageBankButton.setPreferredSize(buttonSize);
         manageBankButton.setFont(buttonFont);
-        
-        JButton managerReportsButton = new JButton("Manager Reports");
+
+        JButton managerReportsButton = new JButton("Manage Reports");
         managerReportsButton.setPreferredSize(buttonSize);
         managerReportsButton.setFont(buttonFont);
-        
+
         JButton logoutButton = new JButton("Logout");
         logoutButton.setPreferredSize(buttonSize);
         logoutButton.setFont(buttonFont);
