@@ -21,12 +21,12 @@ public class SplashScreen extends JWindow {
         setBounds(x, y, width, height);
 
         // Correct path to your image file
-        String imagePath = "C:\\Users\\l227997\\Documents\\quiz2\\src\\main\\java\\org\\example\\OIP.jpg";
+        String imagePath = "Frontend\\src\\main\\java\\com\\metro_pos\\Images\\OIP.jpg";
         ImageIcon originalIcon = new ImageIcon(imagePath);
 
         // Resize the image
         Image originalImage = originalIcon.getImage();
-        Image resizedImage = originalImage.getScaledInstance(200, 150, Image.SCALE_SMOOTH);
+        Image resizedImage = originalImage.getScaledInstance(300, 150, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(resizedImage);
 
         // Add the resized image to the label
@@ -50,6 +50,5 @@ public class SplashScreen extends JWindow {
 
         setVisible(false);
     }
-
 
 }

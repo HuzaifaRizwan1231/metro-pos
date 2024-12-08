@@ -1,3 +1,8 @@
 {
-  "java.compile.nullAnalysis.mode": "disabled"
+  "java.compile.nullAnalysis.mode": "disabled",
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.project.sourcePaths": [
+    "src",
+    "Frontend/src/main/java/com/metro_pos/Model"
+  ]
 }

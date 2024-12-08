@@ -1,6 +1,9 @@
 package com.metro_pos.View.Cashier;
 
 import javax.swing.*;
+
+import com.metro_pos.Store.UserStore;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,8 +11,8 @@ import java.awt.event.ActionListener;
 public class MainFrame extends JFrame {
     private String cashierName;
 
-    public MainFrame(String deoName) {
-        this.cashierName = deoName;
+    public MainFrame() {
+        this.cashierName = UserStore.getCurrentUser().getName();
 
         // Set frame properties
         setTitle("Metro POS System - Cashier");
@@ -30,13 +33,13 @@ public class MainFrame extends JFrame {
         JPanel labelPanel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Cashier " + cashierName, SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 32));
-        label.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0)); 
+        label.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
         labelPanel.add(label, BorderLayout.CENTER);
         add(labelPanel, BorderLayout.NORTH);
 
         JButton addButton = new JButton("Generate Sale");
         addButton.setFont(new Font("Arial", Font.BOLD, 24));
-        addButton.setMargin(new Insets(20, 20, 20, 20)); 
+        addButton.setMargin(new Insets(20, 20, 20, 20));
         addButton.setFocusPainted(false);
         addButton.addActionListener(new ActionListener() {
             @Override
@@ -47,7 +50,7 @@ public class MainFrame extends JFrame {
 
         JButton cancelButton = new JButton("Cancel");
         cancelButton.setFont(new Font("Arial", Font.BOLD, 24));
-        cancelButton.setMargin(new Insets(20, 20, 20, 20)); 
+        cancelButton.setMargin(new Insets(20, 20, 20, 20));
         cancelButton.setFocusPainted(false);
         cancelButton.addActionListener(new ActionListener() {
             @Override
@@ -66,12 +69,11 @@ public class MainFrame extends JFrame {
         gbc.gridy = 1;
         buttonPanel.add(cancelButton, gbc);
         add(buttonPanel, BorderLayout.CENTER);
-        
+
     }
 
     public static void main(String[] args) {
         // Example usage
-        new MainFrame("John Doe");
+        new MainFrame();
     }
 }
-

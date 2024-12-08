@@ -2,8 +2,6 @@ package com.metro_pos.View.Admin;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class AddBranchManagerDialog extends JDialog {
 
@@ -122,38 +120,48 @@ public class AddBranchManagerDialog extends JDialog {
         buttonPanel.add(cancelButton);
         add(buttonPanel, gbc);
 
-
         // Button actions
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Example: Print form data (replace with actual functionality)
-                String name = nameField.getText();
-                String email = emailField.getText();
-                String password = new String(passwordField.getPassword());
-                String branchCode = branchCodeField.getText();
-                String salary = salaryField.getText();
+        // addButton.addActionListener(new ActionListener() {
+        //     @Override
+        //     public void actionPerformed(ActionEvent e) {
+        //         // Example: Print form data (replace with actual functionality)
+        //         String name = nameField.getText();
+        //         String email = emailField.getText();
+        //         String password = new String(passwordField.getPassword());
+        //         String branchCode = branchCodeField.getText();
+        //         String salary = salaryField.getText();
 
-                if (name.isEmpty() || email.isEmpty() || password.isEmpty() || branchCode.isEmpty() || salary.isEmpty()) {
-                    JOptionPane.showMessageDialog(AddBranchManagerDialog.this,
-                            "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(AddBranchManagerDialog.this,
-                            "Branch Manager Added Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    dispose();
-                }
-            }
-        });
+        //         if (name.isEmpty() || email.isEmpty() || password.isEmpty() || branchCode.isEmpty() || salary.isEmpty()) {
+        //             JOptionPane.showMessageDialog(AddBranchManagerDialog.this,
+        //                     "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE);
+        //         } else {
+        //             JOptionPane.showMessageDialog(AddBranchManagerDialog.this,
+        //                     "Branch Manager Added Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        //             dispose();
+        //         }
+        //     }
+        // });
 
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
+        // cancelButton.addActionListener(new ActionListener() {
+        //     @Override
+        //     public void actionPerformed(ActionEvent e) {
+        //         dispose();
+        //     }
+        // });
 
         setLocationRelativeTo(parent);
         setVisible(true);
     }
 
+    // Main method to launch the application
+    public static void main(String[] args) {
+        // Create a parent frame
+        JFrame parent = new JFrame();
+        parent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        parent.setSize(800, 600);
+        parent.setVisible(true);
+
+        // Show the AddBranchManagerDialog
+        new AddBranchManagerDialog(parent);
+    }
 }

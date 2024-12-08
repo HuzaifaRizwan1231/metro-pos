@@ -2,7 +2,6 @@ package com.metro_pos.View.Login;
 
 import javax.swing.*;
 import java.awt.*;
-import com.metro_pos.View.Admin.AddBranchManagerDialog;
 
 public class MainFrame extends JFrame {
     private JPanel mainPanel;
@@ -28,10 +27,10 @@ public class MainFrame extends JFrame {
         welcomePanel.add(welcomeLabel, gbc);
 
         mainPanel.add(welcomePanel, "Welcome");
-        mainPanel.add(new LoginPanel("Admin"), "Admin Login");
-        mainPanel.add(new LoginPanel("Manager"), "Manager Login");
-        mainPanel.add(new LoginPanel("Cashier"), "Cashier Login");
-        mainPanel.add(new LoginPanel("Data Operator"), "Data Operator Login");
+        mainPanel.add(new LoginPanel("Admin", MainFrame.this), "Admin Login");
+        mainPanel.add(new LoginPanel("Manager", MainFrame.this), "Manager Login");
+        mainPanel.add(new LoginPanel("Cashier", MainFrame.this), "Cashier Login");
+        mainPanel.add(new LoginPanel("DEO", MainFrame.this), "Data Operator Login");
 
         ChooseRolePanelView sidebarPanel = new ChooseRolePanelView(cardLayout, mainPanel);
 
@@ -41,7 +40,6 @@ public class MainFrame extends JFrame {
         setVisible(true);
         setLocationRelativeTo(null);
 
-        new AddBranchManagerDialog(this);
     }
 
 }
