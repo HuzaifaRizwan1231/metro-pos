@@ -54,7 +54,13 @@ class ChooseVendorDialogue extends JDialog {
         String[] columnNames = {"ID", "Name", "Phone", "Address"};
         Object[][] data = deoController.getVendors();
 
-        DefaultTableModel tableModel = new DefaultTableModel(data, columnNames);
+        DefaultTableModel tableModel = new DefaultTableModel(data, columnNames){
+            //Makes all the cells non editable
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         JTable vendorTable = new JTable(tableModel);
         JScrollPane tableScrollPane = new JScrollPane(vendorTable);
         add(tableScrollPane, gbc);
@@ -99,7 +105,6 @@ class ChooseVendorDialogue extends JDialog {
             }
         });
 
-        // Implement search functionality
         TableRowSorter<DefaultTableModel> rowSorter = new TableRowSorter<>(tableModel);
         vendorTable.setRowSorter(rowSorter);
 

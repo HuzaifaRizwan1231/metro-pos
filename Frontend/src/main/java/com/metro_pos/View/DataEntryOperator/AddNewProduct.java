@@ -3,6 +3,7 @@ package com.metro_pos.View.DataEntryOperator;
 import javax.swing.*;
 
 import com.metro_pos.Controller.DEOController;
+import com.metro_pos.Store.UserStore;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -118,7 +119,6 @@ public class AddNewProduct extends JDialog {
         buttonPanel.add(cancelButton);
         add(buttonPanel, gbc);
 
-        // Add button functionality
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -155,8 +155,7 @@ public class AddNewProduct extends JDialog {
                 }
                 else {
                     DEOController deo = new DEOController();
-                    //TODO add branch id
-                    boolean result = deo.addProduct(name, category, originalPriceDouble, salePriceDouble, priceByUnitDouble, priceByCartonDouble, quantityInt, Integer.parseInt(vendorId), 1);
+                    boolean result = deo.addProduct(name, category, originalPriceDouble, salePriceDouble, priceByUnitDouble, priceByCartonDouble, quantityInt, Integer.parseInt(vendorId), UserStore.getCurrentUser().getBranchCode());
                     if(result) {
                         JOptionPane.showMessageDialog(AddNewProduct.this,
                                 "Product added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
