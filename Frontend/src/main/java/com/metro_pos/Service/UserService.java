@@ -42,13 +42,14 @@ public class UserService extends BaseService {
 
     public Boolean update(String password) {
 
-        String sql = "UPDATE user SET password = ? WHERE name = ? AND role = ?";
+        String sql = "UPDATE user SET password = ?, is_first_login = ? WHERE name = ? AND role = ?";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, password);
-            ps.setString(2, UserStore.getCurrentUser().getName());
-            ps.setString(3, UserStore.getCurrentUser().getRole());
+            ps.setBoolean(2, false);
+            ps.setString(3, UserStore.getCurrentUser().getName());
+            ps.setString(4, UserStore.getCurrentUser().getRole());
 
             ps.executeUpdate();
 
